@@ -1,0 +1,45 @@
+{
+    "name": "rubbi",
+    "version": "1.0.1",
+    "description": "收集一些好用的工具函数",
+    "main": "index.js",
+    "scripts": {
+        "test": "jest",
+        "test-cov": "jest --coverage --runInBand --forceExit",
+        "lint": "eslint index.js lib test"
+    },
+    "keywords": [
+        "tool",
+        "lib",
+        "ladosh"
+    ],
+    "author": "degfy@sina.com",
+    "license": "ISC",
+    "engines": {
+        "node": ">= 8.1.4"
+    },
+    "files": [
+        "index.js",
+        "lib"
+    ],
+    "jest": {
+        "testMatch": [
+            "**/test/!(helpers)/*.js"
+        ],
+        "coverageReporters": [
+            "text-summary",
+            "lcov"
+        ],
+        "bail": true,
+        "testEnvironment": "node"
+    },
+    "dependencies": {
+        "rubbi": "^1.0.1"
+    },
+    "devDependencies": {
+        "eslint": "^6.0.1",
+        "babel-eslint": "^10.0.2",
+        "jest": "^24.8.0",
+        "supertest": "^4.0.2"
+    }
+}
