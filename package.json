@@ -24,6 +24,7 @@
     ],
     "jest": {
         "testMatch": [
+            "**/test/index.js",
             "**/test/!(helpers)/*.js"
         ],
         "coverageReporters": [

@@ -1,8 +1,11 @@
 class People {
-    asy() {
-        return 'people';
+    constructor(...arg) {
+        this.arg = arg;
+    }
+    say() {
+        return ['People', ...this.arg].join(',');
     }
 }
 
 
-module.module = People;
+module.exports = People;

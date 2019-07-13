@@ -7,23 +7,23 @@ const {
 
 const util = require('util');
 const debuglog = util.debuglog('dirLoader');
-const is = require('is-type-of');
 const fs = require('fs');
 const path = require('path');
-const __map = new Map;
+const global_map = new Map;
 
 const isDir = Symbol('isDir');
 const dirInstance = Symbol('dirInstance');
+const isLoaded = Symbol('isLoaded');
 
 
 function LazyBoy(dirPath, opts) {
-    Object.assign({
+    opts = Object.assign({
         fileSubfix: '.js', //要加载的文件名后缀
         nameTrans: toDownLine,
 
         diligent: false, // 勤快模式,一次性全部模块加载到内存
 
-        instance: false, // 加载的模块可能是一个类型，如果是类，将其实例化
+        instance: true, // 加载的模块可能是一个类型，如果是类，将其实例化
         proxy: false, //是否代理加载对象的属性
 
         factory: true, //加载的模块，可能是一个工厂函数
@@ -31,19 +31,23 @@ function LazyBoy(dirPath, opts) {
 
         capitalize: false, //访问路径大写:`x = new LazyBoy(path, {capitalize:true});x.Example`
         subfix: '', //访问添加的统计后缀:`x = new LazyBoy(path, {subfix:'Service'});x.ExampleService`
+        useGlableCache: false,
     }, opts);
 
     if (!is.array(opts.factoryParams)) {
         opts.factoryParams = [opts.factoryParams];
     }
-
+    if (!is.function(opts.nameTrans)) {
+        opts.nameTrans = toDownLine;
+    }
 
     return function Dir(...args) {
+        const __map = opts.useGlableCache ? global_map : new Map;
         const originObj = this;
         const fileReg = new RegExp(opts.fileSubfix + '$');
 
-        if (opts.diligent) {
-            function load(dirPath) {
+        function pre_load(dirPath) {
+            if (!originObj[isLoaded]) {
                 fs
                     .readdirSync(dirPath)
                     .forEach(file => {
@@ -57,9 +61,12 @@ function LazyBoy(dirPath, opts) {
                             }
                         }
                     });
+                originObj[isLoaded] = true;
             }
+        }
 
-            load(dirPath);
+        if (opts.diligent) {
+            pre_load(dirPath);
         }
 
         return new Proxy(originObj, {
@@ -71,6 +78,7 @@ function LazyBoy(dirPath, opts) {
                         return;
 
                     case Symbol.toStringTag:
+                        pre_load(dirPath);
                         return 'Dir';
                     case 'constructor':
                         return Dir;
@@ -96,28 +104,35 @@ function LazyBoy(dirPath, opts) {
                         }
                     }
 
-                    _name = nameTrans(_name);
+                    _name = opts.nameTrans(_name);
                     const _path = path.resolve(dirPath, _name);
                     let filePath = _path;
                     if (opts.fileSubfix) {
                         filePath += opts.fileSubfix;
                     }
 
-                    let stat = fs.statSync(filePath);
-                    if (stat.isFile()) {
-                        _class = require(filePath);
-                        if (opts.factory && !is.class(_class) && is.function(_class)) {
-                            _class = _class(...opts.factoryParams);
-                        }
-                    } else if (stat.isDirectory) {
-                        _class = LazyBoy(filePath, opts);
-                        _class[isDir] = true;
-                    } else {
-                        stat = fs.statSync(_path);
-                        if (stat.isDirectory) {
-                            _class = LazyBoy(_path, opts);
+                    if (fs.existsSync(filePath)) {
+                        let stat = fs.statSync(filePath);
+                        if (stat.isFile()) {
+                            _class = require(filePath);
+                            if (opts.factory && !is.class(_class) && is.function(_class)) {
+                                _class = _class(...opts.factoryParams);
+                            }
+                        } else if (stat.isDirectory) {
+                            _class = LazyBoy(filePath, opts);
                             _class[isDir] = true;
                         } else {
+                            throw new Error(`${_nameKey} resovle failed, ${_path} is not available`);
+                        }
+                    } else {
+                        if (fs.existsSync(_path)) {
+                            const stat = fs.statSync(_path);
+                            if (stat.isDirectory) {
+                                _class = LazyBoy(_path, opts);
+                                _class[isDir] = true;
+                            }
+                        }
+                        if (!_class) {
                             throw new Error(`${_nameKey} resovle failed, ${_path} is not available`);
                         }
                     }
