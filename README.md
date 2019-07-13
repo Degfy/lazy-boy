@@ -1,12 +1,12 @@
-# rubbi, 收集一些有用的工具函数
+# lazy-boy, 一个自动文件加载器
   [![NPM version][npm-image]][npm-url]
   [![build status][travis-image]][travis-url]
   [![Test coverage][coveralls-image]][coveralls-url]
 
 
-[npm-image]: https://img.shields.io/npm/v/rubbi.svg?style=flat-square
-[npm-url]: https://www.npmjs.com/package/rubbi
-[travis-image]: https://travis-ci.org/Degfy/rubbi.svg?branch=master
-[travis-url]: https://travis-ci.org/Degfy/rubbi
-[coveralls-image]: https://img.shields.io/codecov/c/github/Degfy/rubbi.svg?style=flat-square
-[coveralls-url]: https://codecov.io/github/Degfy/rubbi?branch=master
+[npm-image]: https://img.shields.io/npm/v/lazy-boy.svg?style=flat-square
+[npm-url]: https://www.npmjs.com/package/lazy-boy
+[travis-image]: https://travis-ci.org/Degfy/lazy-boy.svg?branch=master
+[travis-url]: https://travis-ci.org/Degfy/lazy-boy
+[coveralls-image]: https://img.shields.io/codecov/c/github/Degfy/lazy-boy.svg?style=flat-square
+[coveralls-url]: https://codecov.io/github/Degfy/lazy-boy?branch=master

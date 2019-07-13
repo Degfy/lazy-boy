@@ -18,7 +18,7 @@ const isLoaded = Symbol('isLoaded');
 
 function LazyBoy(dirPath, opts) {
     opts = Object.assign({
-        fileSubfix: '.js', //要加载的文件名后缀
+        fileSuffix: '.js', //要加载的文件名后缀
         nameTrans: toDownLine,
 
         diligent: false, // 勤快模式,一次性全部模块加载到内存
@@ -30,8 +30,8 @@ function LazyBoy(dirPath, opts) {
         factoryParams: [], //如果加载的是一个工厂函数，将传递的参数
 
         capitalize: false, //访问路径大写:`x = new LazyBoy(path, {capitalize:true});x.Example`
-        subfix: '', //访问添加的统计后缀:`x = new LazyBoy(path, {subfix:'Service'});x.ExampleService`
-        useGlableCache: false,
+        suffix: '', //访问添加的统计后缀:`x = new LazyBoy(path, {suffix:'Service'});x.ExampleService`
+        useGlobalCache: false,
     }, opts);
 
     if (!is.array(opts.factoryParams)) {
@@ -42,9 +42,9 @@ function LazyBoy(dirPath, opts) {
     }
 
     return function Dir(...args) {
-        const __map = opts.useGlableCache ? global_map : new Map;
+        const __map = opts.useGlobalCache ? global_map : new Map;
         const originObj = this;
-        const fileReg = new RegExp(opts.fileSubfix + '$');
+        const fileReg = new RegExp(opts.fileSuffix + '$');
 
         function pre_load(dirPath) {
             if (!originObj[isLoaded]) {
@@ -96,19 +96,19 @@ function LazyBoy(dirPath, opts) {
                         }
                     }
 
-                    if (opts.subfix && is.string(opts.subfix)) {
-                        const reg = new RegExp(opts.subfix + '$');
+                    if (opts.suffix && is.string(opts.suffix)) {
+                        const reg = new RegExp(opts.suffix + '$');
                         _name = _name.replace(reg, '');
                         if (_name === name) {
-                            throw Error(name + ' 后缀必须是' + opts.subfix);
+                            throw Error(name + ' 后缀必须是' + opts.suffix);
                         }
                     }
 
                     _name = opts.nameTrans(_name);
                     const _path = path.resolve(dirPath, _name);
                     let filePath = _path;
-                    if (opts.fileSubfix) {
-                        filePath += opts.fileSubfix;
+                    if (opts.fileSuffix) {
+                        filePath += opts.fileSuffix;
                     }
 
                     if (fs.existsSync(filePath)) {

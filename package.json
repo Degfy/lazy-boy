@@ -1,7 +1,7 @@
 {
-    "name": "rubbi",
-    "version": "1.0.1",
-    "description": "收集一些好用的工具函数",
+    "name": "lazy-boy",
+    "version": "0.0.1",
+    "description": "一个自动文件加载器",
     "main": "index.js",
     "scripts": {
         "test": "jest",
@@ -9,9 +9,14 @@
         "lint": "eslint index.js lib test"
     },
     "keywords": [
-        "tool",
-        "lib",
-        "ladosh"
+        "loader",
+        "auto load",
+        "auto loader",
+        "auto file loader",
+        "fileLoader",
+        "file loader",
+        "file-loader",
+        "lazy-boy"
     ],
     "author": "degfy@sina.com",
     "license": "ISC",

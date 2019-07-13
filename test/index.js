@@ -32,7 +32,7 @@ describe('index.js', () => {
 
         const Boy2 = LazyBoy(path.resolve(__dirname, '../test_src/controller'), {
             instance: false,
-            subfix: 'Controller',
+            suffix: 'Controller',
             capitalize: true,
         });
 
