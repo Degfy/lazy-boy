@@ -1,6 +1,6 @@
 {
-    "name": "lazy-boy",
-    "version": "0.0.1",
+    "name": "lazy-boy-loader",
+    "version": "1.0.0",
     "description": "一个自动文件加载器",
     "main": "index.js",
     "scripts": {
@@ -9,6 +9,8 @@
         "lint": "eslint index.js lib test"
     },
     "keywords": [
+        "lazy loader",
+        "lazy load",
         "loader",
         "auto load",
         "auto loader",
