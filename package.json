@@ -6,7 +6,11 @@
     "scripts": {
         "test": "jest",
         "test-cov": "jest --coverage --runInBand --forceExit",
-        "lint": "eslint index.js lib test"
+        "lint": "eslint index.js test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Degfy/lazy-boy.git"
     },
     "keywords": [
         "lazy loader",
