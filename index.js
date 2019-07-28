@@ -155,6 +155,9 @@ function LazyBoy(dirPath, opts) {
                     obj.__path = _class.__path;
                     return obj;
                 } else {
+                    if (opts.proxy) {
+                        return new Proxy(_class, opts.proxy);
+                    }
                     return _class;
                 }
             },
