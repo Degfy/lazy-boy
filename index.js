@@ -122,7 +122,7 @@ function LazyBoy(dirPath, opts) {
                             _class = LazyBoy(filePath, opts);
                             _class[isDir] = true;
                         } else {
-                            throw new Error(`${_nameKey} resovle failed, ${_path} is not available`);
+                            throw new Error(`${_nameKey} resolve failed, ${_path} is not available`);
                         }
                     } else {
                         if (fs.existsSync(_path)) {
@@ -133,7 +133,8 @@ function LazyBoy(dirPath, opts) {
                             }
                         }
                         if (!_class) {
-                            throw new Error(`${_nameKey} resovle failed, ${_path} is not available`);
+                            // throw new Error(`${_nameKey} resolve failed, ${_path} is not available`);
+                            return undefined;
                         }
                     }
                     __map.set(_nameKey, _class);
