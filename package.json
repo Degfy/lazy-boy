@@ -1,6 +1,6 @@
 {
     "name": "lazy-boy-loader",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "一个自动文件延迟加载器",
     "main": "index.js",
     "scripts": {

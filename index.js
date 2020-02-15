@@ -2,6 +2,7 @@ const {
     is,
     toCamel,
     toDownLine,
+    capitalize,
     unCapitalize,
 } = require('rubbi');
 
@@ -22,6 +23,7 @@ function LazyBoy(dirPath, opts) {
         nameTrans: toDownLine,
 
         diligent: false, // 勤快模式,一次性全部模块加载到内存
+        diligentAccess: false,
 
         instance: true, // 加载的模块可能是一个类型，如果是类，将其实例化
         proxy: false, //是否代理加载对象的属性
@@ -32,6 +34,9 @@ function LazyBoy(dirPath, opts) {
         capitalize: false, //访问路径大写:`x = new LazyBoy(path, {capitalize:true});x.Example`
         suffix: '', //访问添加的统计后缀:`x = new LazyBoy(path, {suffix:'Service'});x.ExampleService`
         useGlobalCache: false,
+
+        factoryBefore: false, //Function
+        factoryAfter: false, //Function
     }, opts);
 
     if (!is.array(opts.factoryParams)) {
@@ -46,6 +51,8 @@ function LazyBoy(dirPath, opts) {
         const originObj = this;
         const fileReg = new RegExp(opts.fileSuffix + '$');
 
+        let _files = [];
+
         function pre_load(dirPath) {
             if (!originObj[isLoaded]) {
                 fs
@@ -55,7 +62,9 @@ function LazyBoy(dirPath, opts) {
                             const filePath = path.resolve(dirPath, file);
                             try {
                                 require(filePath);
-                                originObj[toCamel(file.replace(fileReg, ''))] = filePath;
+                                let fileName = toCamel(file.replace(fileReg, ''));
+                                originObj[fileName] = filePath;
+                                _files.push(fileName);
                             } catch (e) {
                                 debuglog('require e:', e);
                             }
@@ -65,23 +74,19 @@ function LazyBoy(dirPath, opts) {
             }
         }
 
-        if (opts.diligent) {
-            pre_load(dirPath);
-        }
-
-        return new Proxy(originObj, {
+        const _proxy = new Proxy(originObj, {
             get(_, name) {
                 switch (name) {
-                    case util.inspect.custom:
-                    case 'inspect':
-                    case Symbol.iterator:
-                        return;
+                case util.inspect.custom:
+                case 'inspect':
+                case Symbol.iterator:
+                    return;
 
-                    case Symbol.toStringTag:
-                        pre_load(dirPath);
-                        return 'Dir';
-                    case 'constructor':
-                        return Dir;
+                case Symbol.toStringTag:
+                    pre_load(dirPath);
+                    return 'Dir';
+                case 'constructor':
+                    return Dir;
                 }
 
                 const _nameKey = dirPath + '$$' + name;
@@ -116,7 +121,14 @@ function LazyBoy(dirPath, opts) {
                         if (stat.isFile()) {
                             _class = require(filePath);
                             if (opts.factory && !is.class(_class) && is.function(_class)) {
-                                _class = _class(...opts.factoryParams);
+                                let factoryParams = opts.factoryParams;
+                                if (is.function(opts.factoryBefore)) {
+                                    factoryParams = opts.factoryBefore(...factoryParams);
+                                }
+                                _class = _class(...factoryParams);
+                                if (is.function(opts.factoryAfter)) {
+                                    _class = opts.factoryAfter(_class);
+                                }
                             }
                         } else if (stat.isDirectory) {
                             _class = LazyBoy(filePath, opts);
@@ -140,7 +152,7 @@ function LazyBoy(dirPath, opts) {
                     __map.set(_nameKey, _class);
                 }
 
-                if (_class[isDir]) {
+                if (_class && _class[isDir]) {
                     if (!originObj[dirInstance]) {
                         originObj[dirInstance] = new _class(...args);
                     }
@@ -163,6 +175,22 @@ function LazyBoy(dirPath, opts) {
                 }
             },
         });
+
+        if (opts.diligent) {
+            pre_load(dirPath);
+            if (opts.diligentAccess) {
+                _files.forEach(it => {
+                    if (opts.capitalize) {
+                        it = capitalize(it);
+                    }
+                    if (opts.suffix) {
+                        it = it + opts.suffix;
+                    }
+                    return _proxy[it];
+                });
+            }
+        }
+        return _proxy;
     };
 }
 
